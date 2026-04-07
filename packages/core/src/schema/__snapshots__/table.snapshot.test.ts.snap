@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DDL snapshots > defineMaterializedView toCreateMaterializedViewSql 1`] = `
+"CREATE MATERIALIZED VIEW IF NOT EXISTS analytics.events_by_day_mv
+ENGINE = MergeTree
+ORDER BY (day, kind)
+TO analytics.events_by_day
+AS 
+    SELECT toDate(ts) AS day, kind, count() AS c
+    FROM analytics.events
+    GROUP BY day, kind
+  "
+`;
+
+exports[`DDL snapshots > defineTable toCreateTableSql 1`] = `
+"CREATE TABLE IF NOT EXISTS analytics.events (
+  id UInt64,
+  kind String,
+  ts DateTime
+) ENGINE = MergeTree
+ORDER BY (ts, id)
+PARTITION BY toYYYYMM(ts)
+TTL ts + INTERVAL 180 DAY"
+`;
