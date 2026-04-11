@@ -1,11 +1,11 @@
-# @clickflow/core
+# @kerobit/clickflow-core
 
 ClickHouse client helpers for **OLAP** workloads: typed table definitions, migrations, buffered inserts, and simple read helpers — without an ORM layer.
 
 ## Install
 
 ```bash
-pnpm add @clickflow/core @clickhouse/client
+pnpm add @kerobit/clickflow-core @clickhouse/client
 ```
 
 ## Usage (sketch)
@@ -18,7 +18,7 @@ import {
   u64,
   string,
   datetime,
-} from "@clickflow/core";
+} from "@kerobit/clickflow-core";
 
 const ch = createClickHouse({
   url: "http://localhost:8123",

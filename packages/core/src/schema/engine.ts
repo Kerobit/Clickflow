@@ -1,3 +1,5 @@
+import isEmpty from "lodash-es/isEmpty.js";
+
 export type MergeTreeEngine =
   | { name: "MergeTree" }
   | { name: "ReplacingMergeTree"; versionColumn?: string };
@@ -13,7 +15,7 @@ export function engineToSql(engine: EngineSpec): string {
         ? `ReplacingMergeTree(${quoteIdent(engine.versionColumn)})`
         : "ReplacingMergeTree"
       : "MergeTree";
-  if (!engine.settings || Object.keys(engine.settings).length === 0) {
+  if (!engine.settings || isEmpty(engine.settings)) {
     return base;
   }
   const pairs = Object.entries(engine.settings).map(

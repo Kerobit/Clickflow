@@ -1,3 +1,4 @@
+import isEmpty from "lodash-es/isEmpty.js";
 import type { ColumnDef, InferInsert, InferRow } from "../column.js";
 import type { EngineSpec } from "./engine.js";
 import { engineToSql } from "./engine.js";
@@ -87,7 +88,7 @@ function buildCreateTableSql(
   if (table.ttl) {
     sql += `\nTTL ${table.ttl}`;
   }
-  if (table.tableSettings && Object.keys(table.tableSettings).length > 0) {
+  if (table.tableSettings && !isEmpty(table.tableSettings)) {
     const pairs = Object.entries(table.tableSettings).map(
       ([k, v]) =>
         `${quoteIdent(k)} = ${

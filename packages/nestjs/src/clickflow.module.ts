@@ -1,18 +1,18 @@
 import {
   createClickHouse,
   type CreateClickHouseConfig,
-} from "@clickflow/core";
+} from "@kerobit/clickflow-core";
 import type { DynamicModule, FactoryProvider, ModuleMetadata } from "@nestjs/common";
 import { Module } from "@nestjs/common";
-import { CLICKFLOW_CLICKHOUSE } from "./clickhouse.constants.js";
-import { ClickHouseService } from "./clickhouse.service.js";
+import { CLICKFLOW_CLICKHOUSE } from "./clickflow.constants.js";
+import { ClickFlowService } from "./clickflow.service.js";
 
-export interface ClickHouseModuleRootOptions extends CreateClickHouseConfig {
-  /** Register `ClickHouseModule` globally */
+export interface ClickFlowModuleRootOptions extends CreateClickHouseConfig {
+  /** Register `ClickFlowModule` globally */
   global?: boolean;
 }
 
-export interface ClickHouseModuleAsyncOptions
+export interface ClickFlowModuleAsyncOptions
   extends Pick<ModuleMetadata, "imports"> {
   global?: boolean;
   inject?: FactoryProvider<CreateClickHouseConfig>["inject"];
@@ -22,26 +22,26 @@ export interface ClickHouseModuleAsyncOptions
 }
 
 @Module({})
-export class ClickHouseModule {
-  static forRoot(options: ClickHouseModuleRootOptions): DynamicModule {
+export class ClickFlowModule {
+  static forRoot(options: ClickFlowModuleRootOptions): DynamicModule {
     const { global, ...config } = options;
     return {
-      module: ClickHouseModule,
+      module: ClickFlowModule,
       global: global ?? false,
       providers: [
         {
           provide: CLICKFLOW_CLICKHOUSE,
           useFactory: () => createClickHouse(config),
         },
-        ClickHouseService,
+        ClickFlowService,
       ],
-      exports: [CLICKFLOW_CLICKHOUSE, ClickHouseService],
+      exports: [CLICKFLOW_CLICKHOUSE, ClickFlowService],
     };
   }
 
-  static forRootAsync(options: ClickHouseModuleAsyncOptions): DynamicModule {
+  static forRootAsync(options: ClickFlowModuleAsyncOptions): DynamicModule {
     return {
-      module: ClickHouseModule,
+      module: ClickFlowModule,
       global: options.global ?? false,
       imports: options.imports,
       providers: [
@@ -53,9 +53,9 @@ export class ClickHouseModule {
             return createClickHouse(cfg);
           },
         },
-        ClickHouseService,
+        ClickFlowService,
       ],
-      exports: [CLICKFLOW_CLICKHOUSE, ClickHouseService],
+      exports: [CLICKFLOW_CLICKHOUSE, ClickFlowService],
     };
   }
 }

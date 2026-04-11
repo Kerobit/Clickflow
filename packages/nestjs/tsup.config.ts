@@ -9,6 +9,6 @@ export default defineConfig({
   outExtension({ format }) {
     return { js: format === "cjs" ? ".cjs" : ".mjs" };
   },
-  external: ["@nestjs/common", "@nestjs/core", "@clickflow/core", "@clickhouse/client"],
+  external: ["@nestjs/common", "@nestjs/core", "@kerobit/clickflow-core", "@clickhouse/client"],
   treeshake: true,
 });

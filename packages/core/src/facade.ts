@@ -1,3 +1,4 @@
+import type { ZodType } from "zod";
 import type { InsertBuffer, InsertBufferOptions } from "./ingest/buffer.js";
 import type { TableHandle } from "./schema/table.js";
 import type { SqlString } from "./sql.js";
@@ -27,13 +28,31 @@ export interface TableContext<TRow, TInsert> {
 }
 
 export interface ClickHouseFacade {
+  /**
+   * Run arbitrary ClickHouse SQL (JSONEachRow). Use this for engine-specific
+   * features that typed table helpers do not expose: `FINAL`, `PREWHERE`,
+   * `SAMPLE`, complex functions, custom projections, etc. Typed `find` /
+   * `count` / `exists` are convenience paths; they are not a replacement for
+   * full ClickHouse SQL.
+   */
   query<TResult = unknown>(
     queryText: string | SqlString,
     queryParams?: Record<string, unknown>
   ): Promise<TResult>;
 
   /**
-   * Execute SQL without expecting row-shaped JSON (DDL, mutations, etc.).
+   * Run a SELECT (JSONEachRow), then validate each row with Zod.
+   */
+  queryRows<TRow>(
+    queryText: string | SqlString,
+    rowSchema: ZodType<TRow>,
+    queryParams?: Record<string, unknown>
+  ): Promise<TRow[]>;
+
+  /**
+   * Execute SQL without expecting row-shaped JSON (DDL, mutations, settings,
+   * etc.). Prefer this (or `query`) when you need ClickHouse-native control
+   * beyond the typed read helpers.
    */
   command(
     queryText: string | SqlString,

@@ -16,6 +16,11 @@ export {
 
 export { sql, rawSql, sqlText, type SqlString } from "./sql.js";
 
+export {
+  parseJsonEachRowRows,
+  safeParseJsonEachRowRows,
+} from "./json-each-row-zod.js";
+
 export { createClickHouse, type CreateClickHouseConfig } from "./client/create-clickhouse.js";
 
 export type { ClickHouseFacade, TableContext } from "./facade.js";

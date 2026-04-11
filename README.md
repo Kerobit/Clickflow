@@ -6,8 +6,8 @@ Monorepo (pnpm) for **ClickHouse OLAP** workloads in **TypeScript** with an opti
 
 | Package | Description |
 |--------|-------------|
-| [`@clickflow/core`](packages/core/README.md) | Client wrapper, typed `query`, `sql` templates, `defineTable` / `defineMaterializedView`, migrations, ingest buffers, read helpers (`find` / `count` / `exists`). |
-| [`@clickflow/nestjs`](packages/nestjs/README.md) | `ClickHouseModule.forRoot` / `forRootAsync`, `ClickHouseService`, `InjectClickHouse`. |
+| [`@kerobit/clickflow-core`](packages/core/README.md) | Client wrapper, typed `query`, `sql` templates, `defineTable` / `defineMaterializedView`, migrations, ingest buffers, read helpers (`find` / `count` / `exists`). |
+| [`@kerobit/clickflow-nest`](packages/nestjs/README.md) | `ClickFlowModule.forRoot` / `forRootAsync`, `ClickFlowService`, `InjectClickFlow`. |
 
 ## Development
 

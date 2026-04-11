@@ -2,12 +2,13 @@ import type {
   ClickHouseFacade,
   TableContext,
   TableHandle,
-} from "@clickflow/core";
+} from "@kerobit/clickflow-core";
+import type { ZodType } from "zod";
 import { Inject, Injectable, OnModuleDestroy } from "@nestjs/common";
-import { CLICKFLOW_CLICKHOUSE } from "./clickhouse.constants.js";
+import { CLICKFLOW_CLICKHOUSE } from "./clickflow.constants.js";
 
 @Injectable()
-export class ClickHouseService implements OnModuleDestroy {
+export class ClickFlowService implements OnModuleDestroy {
   constructor(
     @Inject(CLICKFLOW_CLICKHOUSE) private readonly client: ClickHouseFacade
   ) {}
@@ -17,6 +18,14 @@ export class ClickHouseService implements OnModuleDestroy {
     queryParams?: Record<string, unknown>
   ): Promise<TResult> {
     return this.client.query(queryText, queryParams);
+  }
+
+  queryRows<TRow>(
+    queryText: Parameters<ClickHouseFacade["query"]>[0],
+    rowSchema: ZodType<TRow>,
+    queryParams?: Record<string, unknown>
+  ): Promise<TRow[]> {
+    return this.client.queryRows<TRow>(queryText, rowSchema, queryParams);
   }
 
   command(

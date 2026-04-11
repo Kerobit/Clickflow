@@ -1,22 +1,22 @@
-# @clickflow/nestjs
+# @kerobit/clickflow-nest
 
-NestJS integration for `@clickflow/core`.
+NestJS integration for `@kerobit/clickflow-core`.
 
 ## Install
 
 ```bash
-pnpm add @clickflow/nestjs @clickflow/core @clickhouse/client @nestjs/common @nestjs/core
+pnpm add @kerobit/clickflow-nest @kerobit/clickflow-core @clickhouse/client @nestjs/common @nestjs/core
 ```
 
 ## Register the module
 
 ```typescript
 import { Module } from "@nestjs/common";
-import { ClickHouseModule } from "@clickflow/nestjs";
+import { ClickFlowModule } from "@kerobit/clickflow-nest";
 
 @Module({
   imports: [
-    ClickHouseModule.forRoot({
+    ClickFlowModule.forRoot({
       url: "http://localhost:8123",
       database: "analytics",
       global: true,
@@ -29,7 +29,7 @@ export class AppModule {}
 Async configuration:
 
 ```typescript
-ClickHouseModule.forRootAsync({
+ClickFlowModule.forRootAsync({
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: (config: ConfigService) => ({
@@ -43,11 +43,11 @@ ClickHouseModule.forRootAsync({
 
 ```typescript
 import { Injectable, OnModuleDestroy } from "@nestjs/common";
-import { ClickHouseService } from "@clickflow/nestjs";
+import { ClickFlowService } from "@kerobit/clickflow-nest";
 
 @Injectable()
 export class AnalyticsService implements OnModuleDestroy {
-  constructor(private readonly ch: ClickHouseService) {}
+  constructor(private readonly ch: ClickFlowService) {}
 
   async onModuleDestroy() {
     await this.ch.flushAll();
@@ -55,7 +55,7 @@ export class AnalyticsService implements OnModuleDestroy {
 }
 ```
 
-Or inject the underlying facade token with `InjectClickHouse()` from this package.
+Or inject the underlying facade token with `InjectClickFlow()` from this package.
 
 ## License
 

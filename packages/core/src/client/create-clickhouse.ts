@@ -3,9 +3,18 @@ import {
   type ClickHouseClient,
   type ClickHouseClientConfigOptions,
 } from "@clickhouse/client";
+import isEmpty from "lodash-es/isEmpty.js";
+import mapValues from "lodash-es/mapValues.js";
+import type { ZodType } from "zod";
 import type { ClickHouseFacade, TableContext } from "../facade.js";
 import { InsertBuffer, type InsertBufferOptions } from "../ingest/buffer.js";
-import { buildOrderBy, buildWhere, type WhereClause } from "../read/where.js";
+import { parseJsonEachRowRows } from "../json-each-row-zod.js";
+import {
+  compileTableCount,
+  compileTableExists,
+  compileTableFind,
+} from "../read/compile-read.js";
+import type { WhereClause } from "../read/where.js";
 import type { TableHandle } from "../schema/table.js";
 import { sqlText, type SqlString } from "../sql.js";
 import type { TelemetryHooks } from "../telemetry.js";
@@ -15,20 +24,14 @@ export interface CreateClickHouseConfig extends ClickHouseClientConfigOptions {
 }
 
 function toInsertRow(row: unknown): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
   if (row === null || typeof row !== "object") {
     throw new TypeError("insert row must be a plain object");
   }
-  for (const [k, v] of Object.entries(row as Record<string, unknown>)) {
-    if (v instanceof Date) {
-      out[k] = formatDateTime(v);
-    } else if (typeof v === "bigint") {
-      out[k] = v.toString();
-    } else {
-      out[k] = v;
-    }
-  }
-  return out;
+  return mapValues(row as Record<string, unknown>, (v: unknown) => {
+    if (v instanceof Date) return formatDateTime(v);
+    if (typeof v === "bigint") return v.toString();
+    return v;
+  });
 }
 
 function formatDateTime(d: Date): string {
@@ -56,9 +59,7 @@ class ClickFlowClient implements ClickHouseFacade {
     try {
       const result = await this.client.query({
         query,
-        ...(queryParams !== undefined && Object.keys(queryParams).length > 0
-          ? { query_params: queryParams }
-          : {}),
+        ...(!isEmpty(queryParams) ? { query_params: queryParams } : {}),
         format: "JSONEachRow",
       });
       const data = (await result.json()) as TResult;
@@ -80,6 +81,15 @@ class ClickFlowClient implements ClickHouseFacade {
     }
   }
 
+  async queryRows<TRow>(
+    queryText: string | SqlString,
+    rowSchema: ZodType<TRow>,
+    queryParams?: Record<string, unknown>
+  ): Promise<TRow[]> {
+    const raw = await this.query<unknown>(queryText, queryParams);
+    return parseJsonEachRowRows(raw, rowSchema);
+  }
+
   async command(
     queryText: string | SqlString,
     queryParams?: Record<string, unknown>
@@ -90,9 +100,7 @@ class ClickFlowClient implements ClickHouseFacade {
     try {
       await this.client.command({
         query,
-        ...(queryParams !== undefined && Object.keys(queryParams).length > 0
-          ? { query_params: queryParams }
-          : {}),
+        ...(!isEmpty(queryParams) ? { query_params: queryParams } : {}),
       });
       this.telemetry?.onQueryEnd?.({
         query,
@@ -115,21 +123,13 @@ class ClickFlowClient implements ClickHouseFacade {
     const telemetry = this.telemetry;
     const ctx: TableContext<TRow, TInsert> = {
       find: async (options) => {
-        const { sql: whereSql, params: whereParams } = buildWhere(
-          table,
-          options?.where as WhereClause<unknown> | undefined
-        );
-        const orderSql = buildOrderBy(table, options?.orderBy);
-        const limit =
-          options?.limit !== undefined
-            ? `LIMIT ${Number(options.limit)}`
-            : "";
-        const offset =
-          options?.offset !== undefined
-            ? `OFFSET ${Number(options.offset)}`
-            : "";
-        const q = `SELECT * FROM ${table.fullName} ${whereSql} ${orderSql} ${limit} ${offset}`.trim();
-        return this.query<TRow[]>(q, whereParams);
+        const { sql: q, params } = compileTableFind(table, {
+          where: options?.where as WhereClause<unknown> | undefined,
+          orderBy: options?.orderBy,
+          limit: options?.limit,
+          offset: options?.offset,
+        });
+        return this.query<TRow[]>(q, params);
       },
 
       first: async (options) => {
@@ -142,25 +142,21 @@ class ClickFlowClient implements ClickHouseFacade {
       },
 
       count: async (options) => {
-        const { sql: whereSql, params: whereParams } = buildWhere(
-          table,
-          options?.where as WhereClause<unknown> | undefined
-        );
-        const q = `SELECT count() AS c FROM ${table.fullName} ${whereSql}`.trim();
+        const { sql: q, params } = compileTableCount(table, {
+          where: options?.where as WhereClause<unknown> | undefined,
+        });
         type Row = { c: string | number | bigint };
-        const rows = await this.query<Row[]>(q, whereParams);
+        const rows = await this.query<Row[]>(q, params);
         const raw = rows[0]?.c ?? 0;
         return typeof raw === "bigint" ? raw : BigInt(String(raw));
       },
 
       exists: async (options) => {
-        const { sql: whereSql, params: whereParams } = buildWhere(
-          table,
-          options?.where as WhereClause<unknown> | undefined
-        );
-        const q = `SELECT 1 AS ok FROM ${table.fullName} ${whereSql} LIMIT 1`.trim();
+        const { sql: q, params } = compileTableExists(table, {
+          where: options?.where as WhereClause<unknown> | undefined,
+        });
         type Row = { ok: number };
-        const rows = await this.query<Row[]>(q, whereParams);
+        const rows = await this.query<Row[]>(q, params);
         return rows.length > 0;
       },
 
