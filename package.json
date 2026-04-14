@@ -1,6 +1,7 @@
 {
   "name": "clickflow",
   "private": true,
+  "description": "ClickFlow Monorepo: A SQL-first solution for ClickHouse OLAP in TypeScript and NestJS.",
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "pnpm -r run build",

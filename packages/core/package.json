@@ -1,7 +1,7 @@
 {
   "name": "@kerobit/clickflow-core",
   "version": "0.1.0",
-  "description": "ClickHouse OLAP client for TypeScript: SQL-first, typed helpers, ingest buffers, migrations",
+  "description": "ClickFlow Core: High-performance SQL-first ClickHouse client with typed schemas, migrations, and ingest buffers.",
   "license": "MPL-2.0",
   "type": "module",
   "main": "./dist/index.js",

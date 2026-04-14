@@ -1,6 +1,8 @@
 # @kerobit/clickflow-core
 
-ClickHouse client helpers for **OLAP** workloads: typed table definitions, migrations, buffered inserts, and simple read helpers — without an ORM layer.
+[![License: MPL-2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](../../LICENSE)
+
+ClickHouse client helpers for **OLAP** workloads: typed table definitions, migrations, buffered inserts, and simple read helpers — without heavy ORM layers.
 
 ## Install
 
@@ -53,14 +55,14 @@ const page = await ch.with(events).find({
 });
 ```
 
-## API surface (MVP)
+## API Surface (MVP)
 
-- `createClickHouse(config)` — extends official client config + optional `telemetry` hooks.
-- `query` / `command` — rows via JSONEachRow for `query`; DDL via `command`.
-- `sql` / `rawSql` — tagged template (string fragments only); parameters use ClickHouse named placeholders.
+- `createClickHouse(config)` — Extends the official client config + optional telemetry hooks.
+- `query` / `command` — Rows via `JSONEachRow` for `query`; DDL via `command`.
+- `sql` / `rawSql` — Tagged template for safe SQL fragments; parameters use ClickHouse named placeholders.
 - `defineTable` / `toCreateTableSql` — DDL generation.
 - `defineMaterializedView` / `toCreateMaterializedViewSql`.
-- `createMigrator({ client, migrations, tableName? })` — `run()`, `pending()`, optional `rollbackLast()`.
+- `createMigrator({ client, migrations, tableName? })` — `run()`, `pending()`, optional rollback.
 - `with(table).find|first|count|exists|insertOne|insertMany|createInsertBuffer`.
 
 ## License

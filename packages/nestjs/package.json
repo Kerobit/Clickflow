@@ -1,7 +1,7 @@
 {
   "name": "@kerobit/clickflow-nest",
   "version": "0.1.0",
-  "description": "NestJS integration for @kerobit/clickflow-core (ClickHouse OLAP)",
+  "description": "NestJS integration for ClickFlow: Dependency injection, dedicated services, and lifecycle management for ClickHouse.",
   "license": "MPL-2.0",
   "type": "module",
   "main": "./dist/index.js",
