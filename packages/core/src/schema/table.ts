@@ -2,6 +2,11 @@ import isEmpty from "lodash-es/isEmpty.js";
 import type { ColumnDef, InferInsert, InferRow } from "../column.js";
 import type { EngineSpec } from "./engine.js";
 import { engineToSql } from "./engine.js";
+import {
+  formatIdentifierList,
+  formatQualifiedName,
+  quoteIdentifier,
+} from "./identifiers.js";
 
 export interface ColumnMeta {
   readonly clickHouseType: string;
@@ -18,23 +23,6 @@ export interface TableHandle<TRow, TInsert = TRow> {
   /** Phantom for distinct insert vs row typing */
   readonly _rowInsert?: { row: TRow; insert: TInsert };
   toCreateTableSql(options?: { ifNotExists?: boolean }): string;
-}
-
-function quoteIdent(name: string): string {
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-    throw new Error(`Invalid column identifier: ${name}`);
-  }
-  return name;
-}
-
-function formatTableName(fullName: string): string {
-  const parts = fullName.split(".").map((p) => {
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(p)) {
-      throw new Error(`Invalid table name segment: ${p}`);
-    }
-    return p;
-  });
-  return parts.join(".");
 }
 
 export function defineTable<
@@ -56,7 +44,7 @@ export function defineTable<
   }
 
   const handle: TableHandle<InferRow<TCols>, InferInsert<TCols>> = {
-    fullName: formatTableName(fullName),
+    fullName: formatQualifiedName(fullName),
     columns: columnsMeta,
     engine: def.engine,
     orderBy: def.orderBy as readonly string[],
@@ -77,9 +65,9 @@ function buildCreateTableSql(
   ifNotExists: boolean
 ): string {
   const colDefs = Object.entries(table.columns).map(
-    ([n, m]) => `${quoteIdent(n)} ${m.clickHouseType}`
+    ([n, m]) => `${quoteIdentifier(n)} ${m.clickHouseType}`
   );
-  const orderList = table.orderBy.map(quoteIdent).join(", ");
+  const orderList = formatIdentifierList(table.orderBy);
   const engineSql = engineToSql(table.engine);
   let sql = `CREATE TABLE ${ifNotExists ? "IF NOT EXISTS " : ""}${table.fullName} (\n  ${colDefs.join(",\n  ")}\n) ENGINE = ${engineSql}\nORDER BY (${orderList})`;
   if (table.partitionBy) {
@@ -91,7 +79,7 @@ function buildCreateTableSql(
   if (table.tableSettings && !isEmpty(table.tableSettings)) {
     const pairs = Object.entries(table.tableSettings).map(
       ([k, v]) =>
-        `${quoteIdent(k)} = ${
+        `${quoteIdentifier(k)} = ${
           typeof v === "string"
             ? `'${v.replace(/'/g, "\\'")}'`
             : typeof v === "boolean"

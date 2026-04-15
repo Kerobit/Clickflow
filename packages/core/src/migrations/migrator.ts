@@ -1,4 +1,5 @@
 import type { ClickHouseFacade } from "../facade.js";
+import { formatQualifiedName } from "../schema/identifiers.js";
 
 export interface Migration {
   readonly id: string;
@@ -20,7 +21,7 @@ export interface MigratorOptions {
 }
 
 export function createMigrator(options: MigratorOptions) {
-  const tableName = options.tableName ?? DEFAULT_TABLE;
+  const tableName = formatQualifiedName(options.tableName ?? DEFAULT_TABLE);
   const { client } = options;
   const migrations = [...options.migrations].sort((a, b) =>
     a.id.localeCompare(b.id)

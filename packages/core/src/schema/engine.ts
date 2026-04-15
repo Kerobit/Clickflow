@@ -1,4 +1,5 @@
 import isEmpty from "lodash-es/isEmpty.js";
+import { quoteIdentifier } from "./identifiers.js";
 
 export type MergeTreeEngine =
   | { name: "MergeTree" }
@@ -12,23 +13,16 @@ export function engineToSql(engine: EngineSpec): string {
   const base =
     engine.name === "ReplacingMergeTree"
       ? engine.versionColumn
-        ? `ReplacingMergeTree(${quoteIdent(engine.versionColumn)})`
+        ? `ReplacingMergeTree(${quoteIdentifier(engine.versionColumn)})`
         : "ReplacingMergeTree"
       : "MergeTree";
   if (!engine.settings || isEmpty(engine.settings)) {
     return base;
   }
   const pairs = Object.entries(engine.settings).map(
-    ([k, v]) => `${quoteIdent(k)} = ${formatSettingValue(v)}`
+    ([k, v]) => `${quoteIdentifier(k)} = ${formatSettingValue(v)}`
   );
   return `${base} SETTINGS ${pairs.join(", ")}`;
-}
-
-function quoteIdent(name: string): string {
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-    throw new Error(`Invalid identifier: ${name}`);
-  }
-  return name;
 }
 
 function formatSettingValue(v: string | number | boolean): string {

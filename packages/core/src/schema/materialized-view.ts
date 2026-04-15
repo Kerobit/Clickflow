@@ -2,6 +2,7 @@ import type { SqlString } from "../sql.js";
 import { sqlText } from "../sql.js";
 import type { EngineSpec } from "./engine.js";
 import { engineToSql } from "./engine.js";
+import { formatIdentifierList, formatQualifiedName } from "./identifiers.js";
 
 export interface MaterializedViewHandle {
   readonly fullName: string;
@@ -11,16 +12,6 @@ export interface MaterializedViewHandle {
   readonly orderBy?: readonly string[];
   readonly populate: boolean;
   toCreateMaterializedViewSql(options?: { ifNotExists?: boolean }): string;
-}
-
-function formatName(fullName: string): string {
-  const parts = fullName.split(".").map((p) => {
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(p)) {
-      throw new Error(`Invalid name segment: ${p}`);
-    }
-    return p;
-  });
-  return parts.join(".");
 }
 
 export function defineMaterializedView(
@@ -34,8 +25,8 @@ export function defineMaterializedView(
   }
 ): MaterializedViewHandle {
   const handle: MaterializedViewHandle = {
-    fullName: formatName(fullName),
-    toTable: formatName(def.toTable),
+    fullName: formatQualifiedName(fullName),
+    toTable: formatQualifiedName(def.toTable),
     asSelect: def.asSelect,
     engine: def.engine,
     orderBy: def.orderBy,
@@ -45,7 +36,7 @@ export function defineMaterializedView(
       let sql = `CREATE MATERIALIZED VIEW ${ifNot ? "IF NOT EXISTS " : ""}${handle.fullName}`;
       if (handle.engine && handle.orderBy?.length) {
         const engineSql = engineToSql(handle.engine);
-        const orderList = handle.orderBy.join(", ");
+        const orderList = formatIdentifierList(handle.orderBy);
         sql += `\nENGINE = ${engineSql}\nORDER BY (${orderList})`;
       }
       sql += `\nTO ${handle.toTable}\nAS ${sqlText(handle.asSelect)}`;
