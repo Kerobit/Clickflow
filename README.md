@@ -49,13 +49,10 @@ pnpm test
 
 ### Integration tests
 
-To run tests against a real ClickHouse instance (via Docker or local):
+Specs live under [`packages/core/tests/integration/`](packages/core/tests/integration/). Defaults (`CLICKFLOW_TEST_URL`, database, user, password) are centralized in [`packages/core/tests/integration/config.ts`](packages/core/tests/integration/config.ts) and applied via `vitest.integration.config.ts`.
 
-1. Set the required environment variables:
-   - `CLICKFLOW_TEST_URL` (e.g., `http://127.0.0.1:8123`)
-   - Optional: `CLICKFLOW_TEST_DATABASE`, `CLICKFLOW_TEST_USER`, `CLICKFLOW_TEST_PASSWORD`.
+When you run `pnpm test:integration`, Vitest **global setup** starts the repo’s `compose.test.yaml` (host port **39487**) and **tears it down** after the run—unless `CI=true` (GitHub Actions already provides ClickHouse) or `CLICKFLOW_TEST_SKIP_DOCKER=1` (use your own server; still waits until `/ping` succeeds).
 
-2. Run the command:
 ```bash
 pnpm test:integration
 ```

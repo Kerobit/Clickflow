@@ -29,19 +29,24 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Unit tests
-        run: pnpm test
+      - name: Unit tests with coverage
+        run: pnpm test:coverage
 
   integration:
     runs-on: ubuntu-latest
     services:
       clickhouse:
         image: clickhouse/clickhouse-server:24.8
+        env:
+          CLICKHOUSE_USER: default
+          CLICKHOUSE_PASSWORD: clickflow_test
         ports:
-          - 8123:8123
+          - 39487:8123
     env:
-      CLICKFLOW_TEST_URL: http://127.0.0.1:8123
+      CLICKFLOW_TEST_URL: http://127.0.0.1:39487
       CLICKFLOW_TEST_DATABASE: clickflow_ci
+      CLICKFLOW_TEST_USER: default
+      CLICKFLOW_TEST_PASSWORD: clickflow_test
     steps:
       - uses: actions/checkout@v4
 
@@ -64,7 +69,7 @@ jobs:
       - name: Wait for ClickHouse
         run: |
           for i in $(seq 1 40); do
-            if curl -fsS "http://127.0.0.1:8123/ping" >/dev/null; then
+            if curl -fsS "http://127.0.0.1:39487/ping" >/dev/null; then
               echo "ClickHouse is up"
               exit 0
             fi

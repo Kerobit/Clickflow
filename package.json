@@ -6,8 +6,10 @@
   "scripts": {
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
+    "test:coverage": "pnpm -r run test:coverage",
     "test:integration": "pnpm --filter @kerobit/clickflow-core run test:integration",
-    "lint": "eslint \"packages/*/src/**/*.ts\" --max-warnings 0",
+    "test:integration:local": "pnpm test:integration",
+    "lint": "eslint \"packages/*/src/**/*.ts\" \"packages/*/tests/**/*.ts\" --max-warnings 0",
     "lerna": "lerna",
     "lerna:run": "lerna run",
     "release:version": "lerna version",

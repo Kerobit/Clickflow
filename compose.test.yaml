@@ -1,0 +1,12 @@
+# Local ClickHouse for integration tests (host port 39487 -> container 8123; avoids clashing with a local CH on 8123).
+# Use with: pnpm test:integration:local
+# Or: docker compose -f compose.test.yaml up -d
+# Env: CLICKFLOW_TEST_URL=http://127.0.0.1:39487 CLICKFLOW_TEST_USER=default CLICKFLOW_TEST_PASSWORD=clickflow_test
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    ports:
+      - "39487:8123"
+    environment:
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: clickflow_test

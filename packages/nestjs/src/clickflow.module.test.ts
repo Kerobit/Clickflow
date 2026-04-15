@@ -28,7 +28,7 @@ describe("ClickFlowModule", () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
         ClickFlowModule.forRoot({
-          url: "http://localhost:8123",
+          url: "http://localhost:39487",
           database: "default",
         }),
       ],
@@ -72,7 +72,7 @@ describe("ClickFlowModule", () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
         ClickFlowModule.forRoot({
-          url: "http://localhost:8123",
+          url: "http://localhost:39487",
         }),
       ],
       providers: [Probe],

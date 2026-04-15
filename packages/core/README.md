@@ -65,6 +65,10 @@ const page = await ch.with(events).find({
 - `createMigrator({ client, migrations, tableName? })` — `run()`, `pending()`, optional rollback.
 - `with(table).find|first|count|exists|insertOne|insertMany|createInsertBuffer`.
 
+## Integration tests
+
+Specs and shared config live under [`tests/integration/`](tests/integration/). Run `pnpm test:integration` from this package (see the monorepo README for Docker / env behavior).
+
 ## License
 
 [MPL-2.0](../../LICENSE)
