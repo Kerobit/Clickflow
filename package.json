@@ -13,7 +13,8 @@
     "lerna": "lerna",
     "lerna:run": "lerna run",
     "release:version": "lerna version",
-    "release:publish": "lerna publish from-package"
+    "release:publish": "lerna publish from-package",
+    "makerelease": "lerna version --no-push --yes"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

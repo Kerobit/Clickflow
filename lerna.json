@@ -5,10 +5,11 @@
   "command": {
     "publish": {
       "npmClient": "pnpm",
-      "message": "chore(release): publish"
+      "message": "release: 🚀 %s"
     },
     "version": {
-      "message": "chore(release): bump version"
+      "message": "release: 🚀 %s",
+      "conventionalCommits": true
     }
   }
 }

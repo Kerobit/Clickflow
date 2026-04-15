@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "ClickFlow Core: High-performance SQL-first ClickHouse client with typed schemas, migrations, and ingest buffers.",
   "license": "MPL-2.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

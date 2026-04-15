@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "NestJS integration for ClickFlow: Dependency injection, dedicated services, and lifecycle management for ClickHouse.",
   "license": "MPL-2.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
